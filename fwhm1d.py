@@ -192,3 +192,49 @@ def plot_xy_cut_gaussian(sources, sourceID, parm, x_rel, intensity_profile, x0, 
     ax.legend()
     
     return fig, ax
+
+def plot_fit_gaussian_and_data(parm, x_rel, intensity_profile, ax=None):
+    '''
+    plot the x cut +- 2 FWHMx, avg(+- factor * FWHMy) of the source and fit with gaussian
+    '''
+    if ax is None:
+        figsize=(6,4)
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure # 表示外面傳進來的 ax，要交給外面管理
+
+
+    # 繪圖
+    ax.plot(x_rel, intensity_profile, 'g.', label='Data')
+    ax.plot(x_rel, gaussian(x_rel, *parm), 'k--', label='Gaussian fit')
+    
+    # 從擬合參數取出 mu, sigma
+    amp, mu, sigma, offset = parm # mu 是中心, sigma 是標準差
+    fwhm = 2.355 * sigma
+
+    # 畫出中心線
+    ax.axvline(mu, color='gray', linestyle='-', label='Fit center')
+
+    # --- FWHM 標示區塊 ---
+    amp, mu, sigma, offset = parm
+    fwhm = 2.355 * sigma
+    half_max = offset + amp / 2
+
+    # 畫灰底矩形 (標示 FWHM 區域)
+    ax.axvspan(mu - fwhm/2, mu + fwhm/2, 
+               ymin=0,
+               color='gray', alpha=0.2)
+    # 雙箭頭顯示 FWHM
+    ax.annotate(
+        '', 
+        xy=(mu + fwhm/2, half_max), 
+        xytext=(mu - fwhm/2, half_max),
+        arrowprops=dict(arrowstyle='<->', color='b', lw=1.5)
+    )
+    # 在箭頭下方加文字標籤
+    ax.text(mu, half_max*0.7, f"FWHM = {fwhm:.2f}", 
+            color='b', ha='center', va='bottom', fontsize=10)
+
+    ax.legend()
+    
+    return fig, ax

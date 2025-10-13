@@ -84,13 +84,18 @@ def plot_source_fwhm_ellips(data, sources, **kwargs):
     return fig, ax
     '''
     apertures = []
+    source_id = 0
     for source in sources:
-        position = (source['xcentroid'], source['ycentroid'])
+        x0 = source['xcentroid']
+        y0 = source['ycentroid']
+        position = (x0, y0)
         a = source['x_fwhm']  # x軸半徑
         b = source['y_fwhm']  # y軸半徑
         theta = 0  # 橢圓角度（如有可用 source['theta']）
         aperture = EllipticalAperture(position, a=a, b=b, theta=theta)
         apertures.append(aperture)
+
+
 
     norm = simple_norm(data, stretch='sqrt', percent=99)
     fig, ax = plt.subplots(**kwargs)
@@ -98,4 +103,7 @@ def plot_source_fwhm_ellips(data, sources, **kwargs):
     fig.colorbar(img, ax=ax)
     for aperture in apertures:
         aperture.plot(color='white', lw=1.5, alpha=0.9, ax=ax)
+        ax.text(x0, y0 - b - 5, f'{source_id}', color='white', fontsize=10, ha='center', va='top')
+        source_id += 1
+        
     return fig, ax
